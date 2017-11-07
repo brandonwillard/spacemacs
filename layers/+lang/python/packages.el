@@ -33,12 +33,13 @@
     pytest
     (python :location built-in)
     pyvenv
-    conda
     semantic
     smartparens
     stickyfunc-enhance
     xcscope
     yapfify
+    conda
+    python-x
     ))
 
 (defun python/init-anaconda-mode ()
@@ -441,6 +442,19 @@
       ;; add this optional key binding for Emacs user, since it is unbound
       (define-key inferior-python-mode-map
         (kbd "C-c M-l") 'spacemacs/comint-clear-buffer))))
+
+(defun python/init-python-x ()
+  (use-package python-x
+    :defer t
+    ;; :commands
+    ;; (python-shell-send-line python-shell-print-region-or-symbol)
+    :init
+    (progn
+      (evil-leader/set-key-for-mode 'python-mode
+        "sl" 'python-shell-send-line)
+      (evil-leader/set-key-for-mode 'python-mode
+        "sw" 'python-shell-print-region-or-symbol))
+    ))
 
 (defun python/post-init-semantic ()
   (when (configuration-layer/package-usedp 'anaconda-mode)
