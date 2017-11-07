@@ -68,10 +68,7 @@
 (defun python/post-init-company ()
   (spacemacs|add-company-hook python-mode)
   (spacemacs|add-company-hook inferior-python-mode)
-  (push '(company-files company-capf) company-backends-inferior-python-mode)
-  (add-hook 'inferior-python-mode-hook (lambda ()
-                                         (setq-local company-minimum-prefix-length 0)
-                                         (setq-local company-idle-delay 0.5))))
+  (push '(company-files company-capf) company-backends-inferior-python-mode))
 
 (defun python/init-company-anaconda ()
   (use-package company-anaconda
