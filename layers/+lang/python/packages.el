@@ -33,6 +33,7 @@
     pytest
     (python :location built-in)
     pyvenv
+    conda
     semantic
     smartparens
     stickyfunc-enhance
@@ -223,6 +224,50 @@
       ;; setup shell correctly on environment switch
       (dolist (func '(pyvenv-activate pyvenv-deactivate pyvenv-workon))
         (advice-add func :after 'spacemacs/python-setup-shell)))))
+
+(defun python/init-conda ()
+  (use-package conda
+    :defer t
+    :init
+    (progn
+      (conda-env-initialize-interactive-shells)
+      (conda-env-initialize-eshell)
+
+      (pcase python-auto-set-local-conda-virtualenv
+        (`on-visit
+         (spacemacs/add-to-hooks 'spacemacs//conda--env-activate-project
+                                 '(python-mode-hook
+                                   hy-mode-hook)))
+        ;; FIXME: This doesn't always work.  Seems like files need to be opened in a subset of
+        ;; ways in order to activate projects and/or this hook.
+        ;; TODO: Might need something like this, too.
+        ;; (advice--add 'switch-to-buffer :after #'conda--env-activate-project)
+        ;; TODO: Alternatively, we could wrap/advise the existing autoactivate-mode.
+        ;; (advice--add 'conda--switch-buffer-auto-activate :after #'conda--env-activate-project)
+        ;; (conda-env-autoactivate-mode t)
+        (`on-project-switch
+         (add-hook 'projectile-after-switch-project-hook
+                   'spacemacs//conda--env-activate-project)))
+
+      (custom-set-variables '(conda-anaconda-home "~/apps/anaconda3"))
+
+      ;; XXX: Hijacks existing segment.  Should add cases for both envs.
+      (spaceline-define-segment python-pyenv
+        "The current python env.  Works with `conda'."
+        (when (and active
+                   ;; TODO: Consider not restricting to `python-mode', because
+                   ;; conda envs can apply to more than just python operations
+                   ;; (e.g. libraries, executables).
+                   ;; (eq 'python-mode major-mode)
+                   (boundp 'conda-env-current-name)
+                   (stringp conda-env-current-name)
+                   )
+          (propertize conda-env-current-name
+                      'face 'spaceline-python-venv
+                      'help-echo "Virtual environment (via conda)"))
+        )
+      (spaceline-compile)
+     )))
 
 (defun python/init-pylookup ()
   (use-package pylookup

@@ -96,6 +96,28 @@
                                                 (line-end-position)))))
             (pyvenv-workon virtualenv)))))
 
+;; TODO: Get env name from editorconfig settings?
+(defun spacemacs//conda--get-name-from-env-yml (filename)
+  "Pull the `name` property out of the YAML file at FILENAME."
+  (when filename
+    (let ((env-yml-contents (f-read-text filename)))
+      ;; We generalized the regex to include `-`.
+      (if (string-match "name:[ ]*\\([[:word:]-]+\\)[ ]*$" env-yml-contents)
+          (match-string 1 env-yml-contents)
+        nil))))
+
+(defun spacemacs//conda--env-activate-project (&optional warn-msg)
+  (let* ((project-root (ignore-errors (projectile-project-root)))
+          (env-file (conda--find-env-yml project-root))
+          (env-name (spacemacs//conda--get-name-from-env-yml env-file)))
+    (if (not env-name)
+        (progn
+          (when warn-msg
+            (message "No conda environment for project at %S: %S %S"
+                      project-root env-file env-name))
+          (conda-env-deactivate))
+      (conda-env-activate env-name))))
+
 
 ;; Tests
 

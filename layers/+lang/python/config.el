@@ -40,5 +40,10 @@ Possible values are `on-visit', `on-project-switch' or `nil'.")
 
 Possible values are `on-visit', `on-project-switch' or `nil'.")
 
+(defvar python-auto-set-local-conda-virtualenv 'on-visit
+  "Automatically set conda virtualenv from \"environment.yml\".
+
+Possible values are `on-visit', `on-project-switch' or `nil'.")
+
 (defvar python-sort-imports-on-save nil
   "If non-nil, automatically sort imports on save.")
