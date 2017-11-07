@@ -40,6 +40,7 @@
     yapfify
     conda
     python-x
+    spaceline
     ))
 
 (defun python/init-anaconda-mode ()
@@ -247,25 +248,7 @@
          (add-hook 'projectile-after-switch-project-hook
                    'spacemacs//conda--env-activate-project)))
 
-      (custom-set-variables '(conda-anaconda-home "~/apps/anaconda3"))
-
-      ;; XXX: Hijacks existing segment.  Should add cases for both envs.
-      (spaceline-define-segment python-pyenv
-        "The current python env.  Works with `conda'."
-        (when (and active
-                   ;; TODO: Consider not restricting to `python-mode', because
-                   ;; conda envs can apply to more than just python operations
-                   ;; (e.g. libraries, executables).
-                   ;; (eq 'python-mode major-mode)
-                   (boundp 'conda-env-current-name)
-                   (stringp conda-env-current-name)
-                   )
-          (propertize conda-env-current-name
-                      'face 'spaceline-python-venv
-                      'help-echo "Virtual environment (via conda)"))
-        )
-      (spaceline-compile)
-     )))
+      (custom-set-variables '(conda-anaconda-home "~/apps/anaconda3")))))
 
 (defun python/init-pylookup ()
   (use-package pylookup
@@ -472,6 +455,24 @@ fix this issue."
     (condition-case-unless-debug nil
         ad-do-it
       (error nil))))
+
+(defun python/post-init-spaceline ()
+  ;; XXX: Hijacks existing segment.  Should add cases for both envs.
+  (spaceline-define-segment python-pyenv
+    "The current python env.  Works with `conda'."
+    (when (and active
+               ;; TODO: Consider not restricting to `python-mode', because
+               ;; conda envs can apply to more than just python operations
+               ;; (e.g. libraries, executables).
+               ;; (eq 'python-mode major-mode)
+               (boundp 'conda-env-current-name)
+               (stringp conda-env-current-name)
+               )
+      (propertize conda-env-current-name
+                  'face 'spaceline-python-venv
+                  'help-echo "Virtual environment (via conda)"))
+    )
+  (spaceline-compile))
 
 (defun python/post-init-smartparens ()
   (spacemacs/add-to-hooks 'smartparens-mode '(inferior-python-mode-hook
